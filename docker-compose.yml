@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  ecommerce-DB:
+    container_name: ecommerce-DB
+    restart: always
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ecommerce-DB:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+  cache-db:
+    image: redis:7.0.0-alpine
+    restart: always
+    container_name: cache-db
+    volumes:
+      - redis_cached_data:/data
+    ports:
+      - 6379:6379
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 5000:5000
+    restart: always
+    container_name: e-commerce-backend
+    image: e-commerce-backend:v.1.0.0
+    depends_on:
+      - cache-db
+
+volumes:
+  redis_cached_data:
+  ecommerce-DB:
+  
+  
